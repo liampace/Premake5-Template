@@ -1,16 +1,20 @@
 include ".premake/project.lua"
 
 if not pcall(workspace) then 
-	include ".premake/platforms.lua"
+	function filter_block(names, func)
+		filter(names)
+		func()
+		filter({})
+	end
+
+	include ".premake/workspace.lua"
 	workspace "Workspace"
 		configurations {"Test", "Development", "Profile", "Release"}
-		for os, arches in pairs(PLT_SYSTEMS) do
-			filter("system:"..os)
-				platforms(arches)
-				for _, arch in ipairs(arches) do
-					filter {"system:"..os, "platforms:"..arch}
-						architecture(arch)
-				end
+		for os, arches in pairs(WKS_SYSTEMS) do
+			filter_block("system:"..os, function() platforms(arches) end)
+			for _, arch in ipairs(arches) do
+				filter_block({"system:"..os, "platforms:"..arch}, function() architecture(arch) end)
+			end
 		end
 		systemversion "latest"
 		startproject(PRJ_NAME)
@@ -28,24 +32,25 @@ project(PRJ_NAME)
 	files {"src/**.cpp", "include/**.h"}
 	includedirs "include"
 
-	filter "configurations:Test" 
+	filter_block("configurations:Test", function() 
 		kind "SharedLib"
 		files "tests/**.cpp"
 		undefines "NDEBUG"
 		runtime "Debug"
 		optimize "Off"
-
-	filter "configurations:Development"
+	end)
+	filter_block("configurations:Development", function() 
 		undefines "NDEBUG"
 		runtime "Debug"
 		optimize "Off"
-	
-	filter "configurations:Profile"
+	end)
+	filter_block("configurations:Profile", function() 
 		defines "NDEBUG"
 		runtime "Release"
 		optimize "Off"
-
-	filter "configurations:Release"
+	end)
+	filter_block("configurations:Release", function() 
 		defines "NDEBUG"
 		runtime "Release"
 		optimize "On"
+	end)
