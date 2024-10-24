@@ -1,3 +1,15 @@
+# Batch Files
+*.bat
+
+# Visual Studio Project Files
+**/.vs
+*.sln
+*.vcxproj
+*.vcxproj.*
+
+# Project Build Directories
+**/build
+
 # Prerequisites
 *.d
 
