@@ -1,17 +1,21 @@
-workspace "Workspace"
-	configurations {"Test", "Development", "Profile", "Release"}
-	architecture "x86_64"
-	system "windows"
-	systemversion "latest"
-	startproject "Demo"
+if not pcall(workspace) then 
+	workspace "Workspace"
+		configurations {"Test", "Development", "Profile", "Release"}
+		architecture "x86_64"
+		system "windows"
+		systemversion "latest"
+		startproject "Demo"
 
-BUILD_DIR = "%{prj.location}/build/"
-OUTPUT_DIR = "%{cfg.buildcfg}/%{cfg.system}-%{cfg.architecture}/"
+	BUILD_DIR = "%{prj.location}/build/"
+	OUTPUT_DIR = "%{cfg.buildcfg}/%{cfg.system}-%{cfg.architecture}/"
+end
 
-project "Demo"
-	kind "ConsoleApp"
+include ".premake/project.lua"
+
+project(PRJ_NAME)
+	kind(PRJ_KIND)
 	language "C++"
-	cppdialect "C++11"
+	cppdialect(PRJ_DIALECT)
 	targetdir(BUILD_DIR.."bin/"..OUTPUT_DIR)
 	objdir(BUILD_DIR.."bin-int/"..OUTPUT_DIR)
 	files {"src/**.cpp", "include/**.h"}
