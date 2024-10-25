@@ -33,7 +33,7 @@ project(PRJ_NAME)
 	cppdialect(PRJ_DIALECT)
 	targetdir(BUILD_DIR.."bin/"..OUTPUT_DIR)
 	objdir(BUILD_DIR.."bin-int/"..OUTPUT_DIR)
-	files {"src/"..PRJ_NAME.."/**.cpp", "include"..PRJ_NAME.."/**.h"}
+	files {"src/"..PRJ_NAME.."/**.cpp", "include/"..PRJ_NAME.."/**.h"}
 	includedirs("include", table.unpack(PRJ_INCLUDEDIRS))
 	links(table.unpack(PRJ_LINKS))
 	
@@ -47,10 +47,16 @@ project(PRJ_NAME)
 		end)
 	end
 
-	for os, _ in pairs(WKS_SYSTEMS) do
+	for os, arches in pairs(WKS_SYSTEMS) do
 		filter_block("system:"..os, function() 
 			files({"src/platform/"..os.."/**.cpp", "include/platform/"..os.."/**.h"})
+			defines("PLAFORM_"..string.upper(os))
 		end)
+		for _, arch in ipairs(arches) do
+			filter_block({"system:"..os, "platforms:"..arch}, function() 
+				defines("ARCHITECTURE_"..string.upper(arch))
+			end)
+		end
 	end
 
 	for _, prjinclude in ipairs(PRJ_INCLUDES) do
