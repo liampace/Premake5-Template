@@ -32,7 +32,7 @@ project(PRJ_NAME)
 	cppdialect(PRJ_DIALECT)
 	targetdir(BUILD_DIR.."bin/"..OUTPUT_DIR)
 	objdir(BUILD_DIR.."bin-int/"..OUTPUT_DIR)
-	files {"src/**.cpp", "include/**.h"}
+	files {"src/"..PRJ_NAME.."/**.cpp", "include"..PRJ_NAME.."/**.h"}
 	includedirs "include"
 
 	for name, cfg in pairs(WKS_CONFIGS) do
@@ -42,5 +42,11 @@ project(PRJ_NAME)
 			runtime(cfg.runtime)
 			symbols(cfg.symbols)
 			optimize(cfg.optimize)
+		end)
+	end
+
+	for os, _ in pairs(WKS_SYSTEMS) do
+		filter_block("system:"..os, function() 
+			files({"src/platform/"..os.."/**.cpp", "include/platform/"..os.."/**.h"})
 		end)
 	end
