@@ -6,10 +6,13 @@ if not pcall(workspace) then
 		func()
 		filter({})
 	end
+	function get_table_value(table, key, default)
+		return iif(iif(table ~= nil, table, {})[key] ~= nil, table[key], default)
+	end
 
 	include ".premake/workspace.lua"
 	workspace "Workspace"
-		configurations {"Test", "Development", "Profile", "Release"}
+		configurations(table.keys(WKS_CONFIGS))
 		for os, arches in pairs(WKS_SYSTEMS) do
 			filter_block("system:"..os, function() platforms(arches) end)
 			for _, arch in ipairs(arches) do
@@ -32,25 +35,12 @@ project(PRJ_NAME)
 	files {"src/**.cpp", "include/**.h"}
 	includedirs "include"
 
-	filter_block("configurations:Test", function() 
-		kind "SharedLib"
-		files "tests/**.cpp"
-		undefines "NDEBUG"
-		runtime "Debug"
-		optimize "Off"
-	end)
-	filter_block("configurations:Development", function() 
-		undefines "NDEBUG"
-		runtime "Debug"
-		optimize "Off"
-	end)
-	filter_block("configurations:Profile", function() 
-		defines "NDEBUG"
-		runtime "Release"
-		optimize "Off"
-	end)
-	filter_block("configurations:Release", function() 
-		defines "NDEBUG"
-		runtime "Release"
-		optimize "On"
-	end)
+	for name, cfg in pairs(WKS_CONFIGS) do
+		filter_block("configurations:"..name, function() 
+			defines(get_table_value(cfg, "defines", {}))
+			undefines(get_table_value(cfg, "undefines", {}))
+			runtime(cfg.runtime)
+			symbols(cfg.symbols)
+			optimize(cfg.optimize)
+		end)
+	end
