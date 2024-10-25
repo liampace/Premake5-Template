@@ -6,6 +6,7 @@ if not pcall(workspace) then
 		func()
 		filter({})
 	end
+
 	function get_table_value(table, key, default)
 		return iif(iif(table ~= nil, table, {})[key] ~= nil, table[key], default)
 	end
@@ -33,8 +34,9 @@ project(PRJ_NAME)
 	targetdir(BUILD_DIR.."bin/"..OUTPUT_DIR)
 	objdir(BUILD_DIR.."bin-int/"..OUTPUT_DIR)
 	files {"src/"..PRJ_NAME.."/**.cpp", "include"..PRJ_NAME.."/**.h"}
-	includedirs "include"
-
+	includedirs("include", table.unpack(PRJ_INCLUDEDIRS))
+	links(table.unpack(PRJ_LINKS))
+	
 	for name, cfg in pairs(WKS_CONFIGS) do
 		filter_block("configurations:"..name, function() 
 			defines(get_table_value(cfg, "defines", {}))
@@ -49,4 +51,8 @@ project(PRJ_NAME)
 		filter_block("system:"..os, function() 
 			files({"src/platform/"..os.."/**.cpp", "include/platform/"..os.."/**.h"})
 		end)
+	end
+
+	for _, prjinclude in ipairs(PRJ_INCLUDES) do
+		include(prjinclude)
 	end
